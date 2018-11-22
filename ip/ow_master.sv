@@ -213,8 +213,25 @@ always_ff @ (posedge clk or posedge local_reset)
 	end
 
 // сигналы поиска
-wire zero;
-assign zero = ~id_bit & ~cmp_id_bit & discrepancy_lt & ~discrepancy_gt;
+wire zero_sig;
+assign zero_sig = ~id_bit & ~cmp_id_bit & ( discrepancy_lt | ( discrepancy_gt & ~data_buf[0] ) );
+
+reg zero;
+always_ff @ (posedge clk or posedge local_reset)
+	begin
+		if (local_reset)
+			begin
+				zero = 0;
+			end
+		else if (SEARCH_STATE == ST_SEARCH_RD_CMP_BIT)
+			begin
+				zero = zero_sig;
+			end
+		else if (SEARCH_STATE == ST_SEARCH_NONE)
+			begin
+				zero = 0;
+			end
+	end
 
 reg [3:0] rom_byte;
 wire [6:0] id_bit_num;
@@ -575,7 +592,7 @@ always_ff @ (posedge clk or posedge local_reset)
 								//data_buf[0] <= id_bit | (~id_bit & ~cmp_id_bit & ((discrepancy_gt & data_buf[0])) | (~discrepancy_lt & ~discrepancy_gt)); // выбираем бит
 								// TODO: во втором случае теряется гибкость
 								// для более строгого выбора, нужно выбирать бит из маски при discrepancy_gt
-								data_buf[0] <= (~discrepancy_gt & id_bit) | (discrepancy_gt & data_buf[0]) | (~id_bit & ~cmp_id_bit & (~discrepancy_lt & ~discrepancy_gt)); // выбираем бит
+								data_buf[0] <= ( ( ~zero_sig & ~id_bit ) | id_bit ) & ~cmp_id_bit; // выбираем бит
 							end
 						else if (SEARCH_STATE == ST_SEARCH_WR_BIT)
 							begin
