@@ -13,13 +13,13 @@ int main () {
 	int i;
 	i = 0;
 	rom_no = 0;
-/*	status = IORD_8DIRECT(OW_INTERFACE_BASE, 1);
-	cmd_status = IORD_8DIRECT(OW_INTERFACE_BASE, 2);
-	// инициируем ошибку
-	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x0F); // invalid cmd
 	status = IORD_8DIRECT(OW_INTERFACE_BASE, 1);
 	cmd_status = IORD_8DIRECT(OW_INTERFACE_BASE, 2);
-	if (cmd_status & 0x02) {
+	// инициируем ошибку
+	//IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x0F); // invalid cmd
+	status = IORD_8DIRECT(OW_INTERFACE_BASE, 1);
+	cmd_status = IORD_8DIRECT(OW_INTERFACE_BASE, 2);
+	if (1 | cmd_status & 0x02) {
 		IOWR_8DIRECT(OW_INTERFACE_BASE, 1, 0x01); // set clear
 		while (!(cmd_status & 0x04)) {
 			cmd_status = IORD_8DIRECT(OW_INTERFACE_BASE, 2); // wait set clear
@@ -29,17 +29,17 @@ int main () {
 			cmd_status = IORD_8DIRECT(OW_INTERFACE_BASE, 2); // wait reset clear
 		}
 	}
-	// continue program*/
+	// continue program
 
 	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0xF0); // search ROM
-	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x28);
-	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0xbd);
-	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x50);
-	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x05);
-	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x02);
 	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x00);
 	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x00);
-	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x08);
+	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x00);
+	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x00);
+	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x00);
+	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x00);
+	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x00);
+	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x00);
 	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x44); // convert_t
 
 	while (i < 8) {
@@ -51,6 +51,9 @@ int main () {
 			i++;
 		}
 	}
+	status = IORD_8DIRECT(OW_INTERFACE_BASE, 1);
+
+// 0x2863ff0909000050
 
 	// пользовательские команды
 	// считывание last_discreparency
@@ -71,9 +74,13 @@ int main () {
 
 	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0xFF); // prefix
 	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x01); // команда get_last_discrepancy
+	status = IORD_8DIRECT(OW_INTERFACE_BASE, 1);
+	while (status & 0x20) {
+		status = IORD_8DIRECT(OW_INTERFACE_BASE, 1);
+	}
 	last_discrepancy = IORD_8DIRECT(OW_INTERFACE_BASE, 0);
 
-/*	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x55); // match ROM
+	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x55); // match ROM
 	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x28);
 	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0xbd);
 	IOWR_8DIRECT(OW_INTERFACE_BASE, 0, 0x50);
@@ -86,12 +93,13 @@ int main () {
 
 	status = IORD_8DIRECT(OW_INTERFACE_BASE, 1);
 	i = 0;
+	scratch = 0;
 	while (i < 8) {
 		status = IORD_8DIRECT(OW_INTERFACE_BASE, 1);
 		if (!(status & 0x20)) {
 			scratch >>= 8;
 			data = IORD_8DIRECT(OW_INTERFACE_BASE, 0);
-			scratch += (uint64_t)(data << 56);
+			scratch += (uint64_t)(((uint64_t)data) << 56);
 			i++;
 		}
 	}
@@ -125,6 +133,7 @@ int main () {
 			rom_no += data;
 			i++;
 		}
-	}*/
+	}
+	status = IORD_8DIRECT(OW_INTERFACE_BASE, 1);
 	while(1) {}
 }
